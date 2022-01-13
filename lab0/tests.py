@@ -1,6 +1,6 @@
 import math
 import random
-random.seed() # Change to "random.seed(n)" to have the random tests always return the same value
+random.seed(47) # Change to "random.seed(n)" to have the random tests always return the same value
 
 answers = {}
 

@@ -23,7 +23,7 @@
 #   3. Python v3.0
 # Fill in your answer in the next line of code ("1", "2", or "3"):
 
-ANSWER_1 = 'fill-me-in'
+ANSWER_1 = '3'
 
 
 # Section 2: Programming warmup _____________________________________________
@@ -31,14 +31,29 @@ ANSWER_1 = 'fill-me-in'
 # Problem 2.1: Warm-Up Stretch
 
 def cube(x):
-    raise NotImplementedError
+    return x * x * x
 
 def factorial(x):
-    raise NotImplementedError
+    if x < 0:
+        raise ValueError('x must be non-negative')
+
+    if x == 0 or x == 1:
+        return 1
+    else
+        return x * factorial(x - 1)
 
 def count_pattern(pattern, lst):
-    raise NotImplementedError
-
+    result = 0
+    for i in range(0, len(lst) - 1):
+        if lst[i] != pattern[0]:
+            continue
+        else
+            for j in range(0, len(pattern)  - 1):
+                if pattern[j] != lst[i + j]:
+                    break
+                if j == len(pattern) - 1:
+                    result += 1
+    return result
 
 # Problem 2.2: Expression depth
 
@@ -65,13 +80,13 @@ from algebra_utils import distribution, encode_sumprod, decode_sumprod
 # Please answer these questions inside the double quotes.
 
 # When did you take 6.01?
-WHEN_DID_YOU_TAKE_601 = ""
+WHEN_DID_YOU_TAKE_601 = "ONLINE"
 
 # How many hours did you spend per 6.01 lab?
-HOURS_PER_601_LAB = ""
+HOURS_PER_601_LAB = "THREE"
 
 # How well did you learn 6.01?
-HOW_WELL_I_LEARNED_601 = ""
+HOW_WELL_I_LEARNED_601 = "GOOD"
 
 # How many hours did this lab take?
-HOURS = ""
+HOURS = "THREE AND A HALF"
