@@ -1,3 +1,3 @@
 # Artificial-Intelligence
 
-Assigment from MIT Opencourseware 6.034
+Assigments from MIT Opencourseware 6.034
