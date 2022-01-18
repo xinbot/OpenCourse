@@ -68,9 +68,12 @@ def depth(exprs):
 
 # Problem 2.3: Tree indexing
 
-def tree_ref(tree, index):
-    pass
-
+def tree_ref(tree, indices):
+    subtree = tree
+    for index in indices:
+        if index < len(subtree):
+            subtree = subtree[index]
+    return subtree
 
 # Section 3: Symbolic algebra
 
