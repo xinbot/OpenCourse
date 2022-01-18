@@ -39,7 +39,7 @@ def factorial(x):
 
     if x == 0 or x == 1:
         return 1
-    else
+    else:
         return x * factorial(x - 1)
 
 def count_pattern(pattern, lst):
@@ -47,7 +47,7 @@ def count_pattern(pattern, lst):
     for i in range(0, len(lst) - 1):
         if lst[i] != pattern[0]:
             continue
-        else
+        else:
             for j in range(0, len(pattern)  - 1):
                 if pattern[j] != lst[i + j]:
                     break
@@ -57,14 +57,19 @@ def count_pattern(pattern, lst):
 
 # Problem 2.2: Expression depth
 
-def depth(expr):
-    raise NotImplementedError
-
+def depth(exprs):
+    maxDepth = 0
+    if isinstance(exprs, (list, tuple)):
+        for expr in exprs:
+            maxDepth = max(maxDepth, depth(expr))
+        return maxDepth + 1
+    else:
+        return maxDepth
 
 # Problem 2.3: Tree indexing
 
 def tree_ref(tree, index):
-    raise NotImplementedError
+    pass
 
 
 # Section 3: Symbolic algebra
@@ -72,8 +77,8 @@ def tree_ref(tree, index):
 # Your solution to this problem doesn't go in this file.
 # Instead, you need to modify 'algebra.py' to complete the distributer.
 
-from algebra import Sum, Product, simplify_if_possible
-from algebra_utils import distribution, encode_sumprod, decode_sumprod
+#from algebra import Sum, Product, simplify_if_possible
+#from algebra_utils import distribution, encode_sumprod, decode_sumprod
 
 # Section 4: Survey _________________________________________________________
 
