@@ -23,7 +23,7 @@
 #   3. Python v3.0
 # Fill in your answer in the next line of code ("1", "2", or "3"):
 
-ANSWER_1 = '3'
+ANSWER_1 = '2'
 
 
 # Section 2: Programming warmup _____________________________________________
@@ -44,15 +44,16 @@ def factorial(x):
 
 def count_pattern(pattern, lst):
     result = 0
-    for i in range(0, len(lst) - 1):
+    for i in range(0, len(lst)):
         if lst[i] != pattern[0]:
             continue
         else:
-            for j in range(0, len(pattern)  - 1):
-                if pattern[j] != lst[i + j]:
+            for j in range(0, len(pattern)):
+                if i + j >= len(lst) or pattern[j] != lst[i + j]:
                     break
-                if j == len(pattern) - 1:
-                    result += 1
+                else:
+                    if j == len(pattern) - 1:
+                        result += 1
     return result
 
 # Problem 2.2: Expression depth
