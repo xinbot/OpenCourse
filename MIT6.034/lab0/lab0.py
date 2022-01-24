@@ -81,8 +81,8 @@ def tree_ref(tree, indices):
 # Your solution to this problem doesn't go in this file.
 # Instead, you need to modify 'algebra.py' to complete the distributer.
 
-#from algebra import Sum, Product, simplify_if_possible
-#from algebra_utils import distribution, encode_sumprod, decode_sumprod
+from algebra import Sum, Product, simplify_if_possible
+from algebra_utils import distribution, encode_sumprod, decode_sumprod
 
 # Section 4: Survey _________________________________________________________
 
