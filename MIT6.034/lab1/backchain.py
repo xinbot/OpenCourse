@@ -13,10 +13,30 @@ from zookeeper import ZOOKEEPER_RULES
 # specific to a particular rule set.  The backchainer will be
 # tested on things other than ZOOKEEPER_RULES.
 
-
 def backchain_to_goal_tree(rules, hypothesis):
-    raise NotImplementedError
+    results = [hypothesis]
+    for rule in rules:
+        for consequent in rule.consequent():
+            bindings = match(consequent, hypothesis)
+            if bindings or consequent == hypothesis:
+                if isinstance(rule.antecedent(), str):
+                    new_hypothesis = populate(rule.antecedent(), bindings)
+                    results.append(backchain_to_goal_tree(rules, new_hypothesis))
+                    results.append(new_hypothesis)
+                else:
+                    statements = [populate(antecedent, bindings) for antecedent in rule.antecedent()]
+                    new_results = []
+                    for statement in statements:
+                        new_results.append(backchain_to_goal_tree(rules, statement))
+                    results.append(create_statement(new_results, rule.antecedent()))
+    return simplify(OR(results))
+
+def create_statement(statements, rule):
+    if isinstance(rule, AND):
+        return AND(statements)
+    elif isinstance(rule, OR):
+        return OR(statements)
 
 # Here's an example of running the backward chainer - uncomment
 # it to see it work:
-#print backchain_to_goal_tree(ZOOKEEPER_RULES, 'opus is a penguin')
+print backchain_to_goal_tree(ZOOKEEPER_RULES, 'opus is a penguin')
