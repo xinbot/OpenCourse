@@ -18,7 +18,7 @@ def backchain_to_goal_tree(rules, hypothesis):
     for rule in rules:
         for consequent in rule.consequent():
             bindings = match(consequent, hypothesis)
-            if bindings or consequent == hypothesis:
+            if bindings is not None:
                 if isinstance(rule.antecedent(), str):
                     new_hypothesis = populate(rule.antecedent(), bindings)
                     results.append(backchain_to_goal_tree(rules, new_hypothesis))
@@ -28,14 +28,13 @@ def backchain_to_goal_tree(rules, hypothesis):
                     new_results = []
                     for statement in statements:
                         new_results.append(backchain_to_goal_tree(rules, statement))
-                    results.append(create_statement(new_results, rule.antecedent()))
+                    if isinstance(rule.antecedent(), AND):
+                        results.append(AND(new_results))
+                    elif isinstance(rule.antecedent(), OR):
+                        results.append(OR(new_results))
+                    else:
+                        results.append(new_results)
     return simplify(OR(results))
-
-def create_statement(statements, rule):
-    if isinstance(rule, AND):
-        return AND(statements)
-    elif isinstance(rule, OR):
-        return OR(statements)
 
 # Here's an example of running the backward chainer - uncomment
 # it to see it work:
