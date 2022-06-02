@@ -141,6 +141,6 @@ def is_admissible(graph, goal):
 def is_consistent(graph, goal):
     raise NotImplementedError
 
-HOW_MANY_HOURS_THIS_PSET_TOOK = ''
-WHAT_I_FOUND_INTERESTING = ''
-WHAT_I_FOUND_BORING = ''
+HOW_MANY_HOURS_THIS_PSET_TOOK = '24'
+WHAT_I_FOUND_INTERESTING = 'Optimal Searching'
+WHAT_I_FOUND_BORING = 'Debugging'
