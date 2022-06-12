@@ -43,8 +43,7 @@ def bfs(graph, start, goal):
         return [start]
     else:
         # Form a one-element queue consisting of a zero-length path that contains only the root node.
-        queue = []
-        queue.append([start])
+        queue = [[start]]
         # Avoid extending the same node multiple times.
         extended = set()
         extended.add(start)
@@ -52,21 +51,20 @@ def bfs(graph, start, goal):
         while len(queue) > 0:
             # Remove the first path from the queue
             path = queue.pop(0)
-            if len(path) > 0:
-                # The terminal node
-                node = path[len(path) - 1]
-                # Extending the first path to all the neighbors of the terminal node
-                for neighbour in graph.get_connected_nodes(node):
-                    # Reject all new paths with loops
-                    if neighbour not in extended:
-                        if neighbour == goal:
-                            # The goal node is found
-                            return path + [neighbour]
-                        else:
-                            extended.add(neighbour)
-                            # Add new paths, if any, to the back of the queue
-                            queue.append(path + [neighbour])
-        return []
+            # The terminal node
+            node = path[-1]
+            # Extending the first path to all the neighbors of the terminal node
+            for neighbour in graph.get_connected_nodes(node):
+                # Reject all new paths with loops
+                if neighbour not in extended:
+                    if neighbour == goal:
+                        # The goal node is found
+                        return path + [neighbour]
+                    else:
+                        extended.add(neighbour)
+                        # Add new paths, if any, to the back of the queue
+                        queue.append(path + [neighbour])
+    return []
 
 ## Once you have completed the breadth-first search,
 ## this part should be very simple to complete.
@@ -75,8 +73,7 @@ def dfs(graph, start, goal):
         return [start]
     else:
         # Form a one-element queue consisting of a zero-length path that contains only the root node.
-        queue = []
-        queue.append([start])
+        queue = [[start]]
         # Avoid extending the same node multiple times.
         extended = set()
         extended.add(start)
@@ -84,28 +81,27 @@ def dfs(graph, start, goal):
         while len(queue) > 0:
             # Remove the first path from the queue
             path = queue.pop(0)
-            if len(path) > 0:
-                # The terminal node
-                node = path[len(path) - 1]
-                # Extending the first path to all the neighbors of the terminal node
-                for neighbour in graph.get_connected_nodes(node):
-                    # Reject all new paths with loops
-                    if neighbour not in extended:
-                        if neighbour == goal:
-                            # The goal node is found
-                            return path + [neighbour]
-                        else:
-                            extended.add(neighbour)
-                            # Add new paths, if any, to the front of the queue
-                            queue.insert(0,  path + [neighbour])
-        return []
+            # The terminal node
+            node = path[-1]
+            # Extending the first path to all the neighbors of the terminal node
+            for neighbour in graph.get_connected_nodes(node):
+                # Reject all new paths with loops
+                if neighbour not in extended:
+                    if neighbour == goal:
+                        # The goal node is found
+                        return path + [neighbour]
+                    else:
+                        extended.add(neighbour)
+                        # Add new paths, if any, to the front of the queue
+                        queue.insert(0,  path + [neighbour])
+    return []
 
 ## Now we're going to add some heuristics into the search.  
 ## Remember that hill-climbing is a modified version of depth-first search.
 ## Search direction should be towards lower heuristic values to the goal.
 def hill_climbing_get_heuristic(graph, goal, path):
     if path and len(path) > 0:
-        return graph.get_heuristic(path[len(path) - 1], goal)
+        return graph.get_heuristic(path[-1], goal)
     else:
         return 9223372036854775807 # Max_Integer
 
@@ -114,35 +110,26 @@ def hill_climbing(graph, start, goal):
         return [start]
     else:
         # Form a one-element queue consisting of a zero-length path that contains only the root node.
-        queue = []
-        queue.append([start])
-        # Avoid extending the same node multiple times.
-        extended = set()
-        extended.add(start)
+        queue = [[start]]
         # Until the first path in the queue terminates at the goal node or the queue is empty
         while len(queue) > 0:
             # Remove the first path from the queue
             path = queue.pop(0)
-            if len(path) > 0:
-                # The terminal node
-                node = path[len(path) - 1]
-                # Extending the first path to all the neighbors of the terminal node
-                for neighbour in graph.get_connected_nodes(node):
-                    # Reject all new paths with loops
-                    if neighbour not in extended:
-                        print "node: " + node + " neighbour: " + neighbour
-                        if neighbour == goal:
-                            # The goal node is found
-                            return path + [neighbour]
-                        else:
-                            extended.add(neighbour)
-                            queue.append(path + [neighbour])
+            new_paths = []
+            # Extending the first path to all the neighbors of the terminal node
+            for neighbour in graph.get_connected_nodes(path[-1]):
+                # Reject all new paths with loops
+                if neighbour not in path:
+                    if neighbour == goal:
+                        # The goal node is found
+                        return path + [neighbour]
                     else:
-                        print "neighbour in extended set: " + neighbour
-                # Sort the new paths, if any, by the estimated distance between their terminal nodes and the goal
-                sorted(queue, key=lambda path : hill_climbing_get_heuristic(graph, goal, path))
-                #print queue
-        return []
+                        new_paths.append(path + [neighbour])
+            # Sort the new paths, if any, by the estimated distance between their terminal nodes and the goal
+            new_paths = sorted(new_paths, key=lambda path : hill_climbing_get_heuristic(graph, goal, path))
+            # Add the new paths, if any, to the front of the queue
+            queue = new_paths + queue
+    return []
 
 ## Now we're going to implement beam search, a variation on BFS
 ## that caps the amount of memory used to store paths.  Remember,
