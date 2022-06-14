@@ -99,9 +99,9 @@ def dfs(graph, start, goal):
 ## Now we're going to add some heuristics into the search.  
 ## Remember that hill-climbing is a modified version of depth-first search.
 ## Search direction should be towards lower heuristic values to the goal.
-def hill_climbing_get_heuristic(graph, goal, path):
-    if path and len(path) > 0:
-        return graph.get_heuristic(path[-1], goal)
+def get_heuristic(graph, goal, node):
+    if node:
+        return graph.get_heuristic(node, goal)
     else:
         return 9223372036854775807 # Max_Integer
 
@@ -126,7 +126,7 @@ def hill_climbing(graph, start, goal):
                     else:
                         new_paths.append(path + [neighbour])
             # Sort the new paths, if any, by the estimated distance between their terminal nodes and the goal
-            new_paths = sorted(new_paths, key=lambda path : hill_climbing_get_heuristic(graph, goal, path))
+            new_paths = sorted(new_paths, key=lambda path : get_heuristic(graph, goal, path[-1]))
             # Add the new paths, if any, to the front of the queue
             queue = new_paths + queue
     return []
@@ -137,7 +137,34 @@ def hill_climbing(graph, start, goal):
 ## The k top candidates are to be determined using the 
 ## graph get_heuristic function, with lower values being better values.
 def beam_search(graph, start, goal, beam_width):
-    raise NotImplementedError
+    if start == goal:
+        return [start]
+    else:
+        # Form a one-element queue consisting of a zero-length path that contains only the root node.
+        queue = [[start]]
+        while len(queue) > 0:
+            new_paths = []
+            # Pop the entire level n of the search graph
+            while len(queue) > 0:
+                # Remove path from the queue
+                path = queue.pop()
+                # Extending the path to all the neighbors of the terminal node
+                for neighbour in graph.get_connected_nodes(path[-1]):
+                    # Reject all new paths with loops
+                    if neighbour not in path:
+                        if neighbour == goal:
+                            # The goal node is found
+                            return path + [neighbour]
+                        else:
+                            new_paths.append(path + [neighbour])
+            # Sort the new paths at level n
+            new_paths = sorted(new_paths, key=lambda path : get_heuristic(graph, goal, path[-1]))
+            # Make sure that there are noly beam_width paths at entire level (No Backtracing)
+            while len(new_paths) > beam_width:
+                new_paths.pop()
+            # Refresh agenda
+            queue = new_paths
+    return []
 
 ## Now we're going to try optimal search.  The previous searches haven't
 ## used edge distances in the calculation.
