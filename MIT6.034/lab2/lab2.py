@@ -242,12 +242,40 @@ def a_star(graph, start, goal):
 ## heuristic.  You've seen graphs with heuristics that are
 ## admissible, but not consistent.  Have you seen any graphs that are
 ## consistent, but not admissible?
+def dijkstra(graph, start):
+    distance = {start : 0} 
+    previous = {start : None}
+    queue = [(0, start)] # (distance, node_name)
+    extended_set = {}
+    while len(queue) > 0:
+        node = queue.pop(0)
+        extended_set[node[1]] = True
+        for new_node in graph.get_connected_nodes(node[1]):
+            if new_node not in extended_set:
+                new_distance = node[0] + graph.get_edge(node[1], new_node).length
+                if new_node in distance:
+                    if new_distance < distance[new_node]:
+                       distance[new_node] = new_distance
+                       previous[new_node] = node[1]
+                       queue.append((new_distance, new_node))
+                else:
+                   distance[new_node] = new_distance
+                   previous[new_node] = node[1]
+                   queue.append((new_distance, new_node))
+    return (distance, previous)
 
 def is_admissible(graph, goal):
-    raise NotImplementedError
+    distance, previous = dijkstra(graph, goal)
+    for node in graph.nodes:
+        if distance[node] < graph.get_heuristic(node, goal):
+            return False
+    return True
 
 def is_consistent(graph, goal):
-    raise NotImplementedError
+    for edge in graph.edges:
+        if edge.length < abs(graph.get_heuristic(edge.node1, goal) - graph.get_heuristic(edge.node2, goal)):
+            return False
+    return True
 
 HOW_MANY_HOURS_THIS_PSET_TOOK = '24'
 WHAT_I_FOUND_INTERESTING = 'Optimal Searching'
