@@ -198,8 +198,44 @@ def branch_and_bound(graph, start, goal):
             queue = sorted(queue, key=lambda node_names : path_length(graph, node_names))
     return []
 
+def a_star_heuristic(graph, goal, node_names):
+    length = path_length(graph, node_names)
+    distance = graph.get_heuristic(node_names[-1], goal)
+    return length + distance
+
 def a_star(graph, start, goal):
-    raise NotImplementedError
+    # Form a one-element queue consisting of a zero-length path that contains only the root node.
+    queue = [[start]]
+     # Until the queue is empty
+    while len(queue) > 0:
+        # Remove the first path from the queue
+        path = queue.pop(0)
+        # Until the first path in the queue terminates at the goal node
+        if path[-1] == goal:
+            return path
+        else:
+            # Extending the path to all the neighbors of the terminal node
+            for neighbour in graph.get_connected_nodes(path[-1]):
+                # Reject all new paths with loops
+                if neighbour not in path:
+                    # Add the remaining new paths, if any. to the queue
+                    queue.append(path + [neighbour])
+            new_paths = {}
+            # If two or more paths reach a common node, delete all those paths except the one that
+            # reaches the common node with the minimum cost
+            for new_path in queue:
+                node = new_path[-1]
+                if node in new_paths:
+                    current_path_length = path_length(graph, new_path)
+                    record_path_length = path_length(graph, new_paths[node])
+                    if current_path_length < record_path_length:
+                        new_paths[node] = new_path
+                else:
+                    new_paths[node] = new_path
+            # Sort the entire queue by the sum of the path length and a lower-bound estimate
+            # of the cost remaining, with least-cost paths in front.
+            queue = sorted(queue, key=lambda node_names : a_star_heuristic(graph, goal, node_names))
+    return []
 
 ## It's useful to determine if a graph has a consistent and admissible
 ## heuristic.  You've seen graphs with heuristics that are
