@@ -54,12 +54,12 @@ def bfs(graph, start, goal):
             return path
         else:
             # Extending the first path to all the neighbors of the terminal node
-            for neighbour in graph.get_connected_nodes(path[-1]):
+            for node in graph.get_connected_nodes(path[-1]):
                 # Reject all new paths with loops
-                if neighbour not in extended:
-                    extended.add(neighbour)
+                if node not in extended:
+                    extended.add(node)
                     # Add new paths, if any, to the back of the queue
-                    queue.append(path + [neighbour])
+                    queue.append(path + [node])
     return []
 
 ## Once you have completed the breadth-first search,
@@ -80,12 +80,12 @@ def dfs(graph, start, goal):
             return path
         else:
             # Extending the first path to all the neighbors of the terminal node
-            for neighbour in graph.get_connected_nodes(path[-1]):
+            for node in graph.get_connected_nodes(path[-1]):
                 # Reject all new paths with loops
-                if neighbour not in extended:
-                    extended.add(neighbour)
+                if node not in extended:
+                    extended.add(node)
                     # Add new paths, if any, to the front of the queue
-                    queue.insert(0,  path + [neighbour])
+                    queue.insert(0,  path + [node])
     return []
 
 ## Now we're going to add some heuristics into the search.  
@@ -111,10 +111,10 @@ def hill_climbing(graph, start, goal):
         else:
             new_paths = []
             # Extending the first path to all the neighbors of the terminal node
-            for neighbour in graph.get_connected_nodes(path[-1]):
+            for node in graph.get_connected_nodes(path[-1]):
                 # Reject all new paths with loops
-                if neighbour not in path:
-                    new_paths.append(path + [neighbour])
+                if node not in path:
+                    new_paths.append(path + [node])
             # Sort the new paths, if any, by the estimated distance between their terminal nodes and the goal
             new_paths = sorted(new_paths, key=lambda path : get_heuristic(graph, goal, path[-1]))
             # Add the new paths, if any, to the front of the queue
@@ -141,10 +141,10 @@ def beam_search(graph, start, goal, beam_width):
                 return path
             else:
                 # Extending the path to all the neighbors of the terminal node
-                for neighbour in graph.get_connected_nodes(path[-1]):
+                for node in graph.get_connected_nodes(path[-1]):
                     # Reject all new paths with loops
-                    if neighbour not in path:
-                        new_paths.append(path + [neighbour])
+                    if node not in path:
+                        new_paths.append(path + [node])
         # Sort the new paths at level n
         new_paths = sorted(new_paths, key=lambda path : get_heuristic(graph, goal, path[-1]))
         # Make sure that there are noly beam_width paths at entire level (No Backtracing)
@@ -189,23 +189,24 @@ def branch_and_bound(graph, start, goal):
             return path
         else:
             # Extending the path to all the neighbors of the terminal node
-            for neighbour in graph.get_connected_nodes(path[-1]):
+            for node in graph.get_connected_nodes(path[-1]):
                 # Reject all new paths with loops
-                if neighbour not in path:
+                if node not in path:
                     # Add the remaining new paths, if any. to the queue
-                    queue.append(path + [neighbour])
+                    queue.append(path + [node])
             # Sort the entire queue by path length with least-cost paths in front
             queue = sorted(queue, key=lambda node_names : path_length(graph, node_names))
     return []
 
 def a_star_heuristic(graph, goal, node_names):
     length = path_length(graph, node_names)
-    distance = graph.get_heuristic(node_names[-1], goal)
-    return length + distance
+    heuristic = graph.get_heuristic(node_names[-1], goal)
+    return length + heuristic
 
 def a_star(graph, start, goal):
     # Form a one-element queue consisting of a zero-length path that contains only the root node.
     queue = [[start]]
+    extended_set = {start : path_length(graph, [start])}
      # Until the queue is empty
     while len(queue) > 0:
         # Remove the first path from the queue
@@ -215,23 +216,23 @@ def a_star(graph, start, goal):
             return path
         else:
             # Extending the path to all the neighbors of the terminal node
-            for neighbour in graph.get_connected_nodes(path[-1]):
+            for node in graph.get_connected_nodes(path[-1]):
                 # Reject all new paths with loops
-                if neighbour not in path:
-                    # Add the remaining new paths, if any. to the queue
-                    queue.append(path + [neighbour])
-            new_paths = {}
-            # If two or more paths reach a common node, delete all those paths except the one that
-            # reaches the common node with the minimum cost
-            for new_path in queue:
-                node = new_path[-1]
-                if node in new_paths:
-                    current_path_length = path_length(graph, new_path)
-                    record_path_length = path_length(graph, new_paths[node])
-                    if current_path_length < record_path_length:
-                        new_paths[node] = new_path
-                else:
-                    new_paths[node] = new_path
+                if node not in path:
+                    new_path = path + [node]
+                    # If two or more paths reach a common node, delete all those paths except the one that
+                    # reaches the common node with the minimum cost
+                    if node in extended_set:
+                        new_path_length = path_length(graph, new_path)
+                        record_path_length  = path_length(graph, extended_set[node])
+                        if new_path_length < record_path_length:
+                            extended_set[node] = new_path
+                            for i in xrange(len(queue)):
+                                if queue[i][-1] == node:
+                                    queue[i] = new_path
+                    else:
+                        extended_set[node] = new_path
+                        queue.append(new_path)
             # Sort the entire queue by the sum of the path length and a lower-bound estimate
             # of the cost remaining, with least-cost paths in front.
             queue = sorted(queue, key=lambda node_names : a_star_heuristic(graph, goal, node_names))
