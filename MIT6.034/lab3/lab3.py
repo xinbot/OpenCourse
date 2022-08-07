@@ -103,9 +103,41 @@ def alpha_beta_search(board, depth,
                       # checking game termination.
                       # The default functions set here will work
                       # for connect_four.
-                      get_next_moves_fn=get_all_next_moves,
-		      is_terminal_fn=is_terminal):
-    raise NotImplementedError
+                      get_next_moves_fn=get_all_next_moves, is_terminal_fn=is_terminal):
+    best_val = None
+
+    for move, new_board in get_next_moves_fn(board):
+        val = alhpa_beta_search_helper(board, depth, eval_fn, True, NEG_INFINITY, INFINITY,
+                                get_next_moves_fn, is_terminal_fn)
+        if best_val == None or val > best_val[0]:
+            best_val = (val, move, new_board)
+
+    return best_val[1]
+
+def alhpa_beta_search_helper(board, depth, eval_fn, isMaximizing, alpha, beta, 
+                                get_next_moves_fn=get_all_next_moves, 
+                                is_terminal_fn=is_terminal):
+    if is_terminal_fn(depth, board):
+        return eval_fn(board)
+    
+    if isMaximizing:
+        best_val = NEG_INFINITY
+        for move, new_board in get_next_moves_fn(board):
+            best_val = max(best_val, alhpa_beta_search_helper(new_board, depth + 1, eval_fn, False, alpha, beta, 
+                                get_next_moves_fn, is_terminal_fn))
+            alpha = max(alpha, best_val)
+            if beta <= alpha:
+                break
+        return best_val
+    else:
+        best_val = INFINITY
+        for move, new_board in get_next_moves_fn(board):
+            best_val = min(best_val, alhpa_beta_search_helper(new_board, depth + 1, eval_fn,  True, alpha, beta, 
+                                get_next_moves_fn, is_terminal_fn))
+            beta = min(beta, best_val)
+            if beta <= alpha:
+                break
+        return best_val
 
 ## Now you should be able to search twice as deep in the same amount of time.
 ## (Of course, this alpha-beta-player won't work until you've defined
@@ -195,9 +227,9 @@ def run_test_tree_search(search, board, depth):
 COMPETE = (None)
 
 ## The standard survey questions.
-HOW_MANY_HOURS_THIS_PSET_TOOK = ""
-WHAT_I_FOUND_INTERESTING = ""
-WHAT_I_FOUND_BORING = ""
-NAME = ""
-EMAIL = ""
+HOW_MANY_HOURS_THIS_PSET_TOOK = "18"
+WHAT_I_FOUND_INTERESTING = "Understanding the initial minimax function is quite challenging and rewarding"
+WHAT_I_FOUND_BORING = "Nothing"
+NAME = "Xin Lin"
+EMAIL = "linxin025@gmail.com"
 
