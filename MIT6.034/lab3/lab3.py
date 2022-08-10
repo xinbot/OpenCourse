@@ -83,6 +83,7 @@ quick_to_win_player = lambda board: minimax(board, depth=4,
 ## counting the number of static evaluations you make.
 ##
 ## You can use minimax() in basicplayer.py as an example.
+
 def alpha_beta_search(board, depth,
                       eval_fn,
                       # NOTE: You should use get_next_moves_fn when generating
@@ -94,37 +95,25 @@ def alpha_beta_search(board, depth,
     best_val = None
 
     for move, new_board in get_next_moves_fn(board):
-        val = alhpa_beta_search_helper(board, depth, eval_fn, True, NEG_INFINITY, INFINITY,
-                                get_next_moves_fn, is_terminal_fn)
+        val = -1 * alpha_beta_search_helper(new_board, depth - 1, eval_fn, NEG_INFINITY, INFINITY, get_next_moves_fn, is_terminal_fn)
         if best_val == None or val > best_val[0]:
             best_val = (val, move, new_board)
 
     return best_val[1]
 
-def alhpa_beta_search_helper(board, depth, eval_fn, isMaximizing, alpha, beta, 
-                                get_next_moves_fn=get_all_next_moves, 
-                                is_terminal_fn=is_terminal):
+def alpha_beta_search_helper(board, depth, eval_fn, alpha, beta, get_next_moves_fn=get_all_next_moves, is_terminal_fn=is_terminal):
     if is_terminal_fn(depth, board):
         return eval_fn(board)
     
-    if isMaximizing:
-        best_val = NEG_INFINITY
-        for move, new_board in get_next_moves_fn(board):
-            best_val = max(best_val, alhpa_beta_search_helper(new_board, depth + 1, eval_fn, False, alpha, beta, 
-                                get_next_moves_fn, is_terminal_fn))
-            alpha = max(alpha, best_val)
-            if beta <= alpha:
-                break
-        return best_val
-    else:
-        best_val = INFINITY
-        for move, new_board in get_next_moves_fn(board):
-            best_val = min(best_val, alhpa_beta_search_helper(new_board, depth + 1, eval_fn,  True, alpha, beta, 
-                                get_next_moves_fn, is_terminal_fn))
-            beta = min(beta, best_val)
-            if beta <= alpha:
-                break
-        return best_val
+    best_val = NEG_INFINITY
+    
+    for move, new_board in get_next_moves_fn(board):
+        best_val = max(best_val, -1 * alpha_beta_search_helper(new_board, depth - 1, eval_fn, -1 * beta, -1 * alpha, get_next_moves_fn, is_terminal_fn))
+        alpha = max(alpha, best_val)
+        if beta <= alpha:
+            break
+
+    return best_val
 
 ## Now you should be able to search twice as deep in the same amount of time.
 ## (Of course, this alpha-beta-player won't work until you've defined
