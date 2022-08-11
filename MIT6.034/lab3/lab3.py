@@ -134,58 +134,8 @@ ab_iterative_player = lambda board: \
 ## By providing a different function, you should be able to beat
 ## simple-evaluate (or focused-evaluate) while searching to the
 ## same depth.
-
-def get_player_chain_len(board, row, col):
-    count = 0
-    for i in xrange(3):
-        if col + i < board.width:
-            if board.get_cell(row, col + i) == board.get_current_player_id():
-                count += 1
-        
-        if col - i >= 0:
-            if board.get_cell(row, col - i) == board.get_current_player_id():
-                count += 1
-        
-        if row + i < board.height:
-            if board.get_cell(row + i, col) == board.get_current_player_id():
-                count += 1
-        
-        if row - i >= 0:
-            if board.get_cell(row - i, col) == board.get_current_player_id():
-                count += 1
-        
-        if row + i < board.height and col + i < board.width:
-            if board.get_cell(row + i, col + i) == board.get_current_player_id():
-                count += 1
-        
-        if row + i < board.height and col - i >= 0:
-            if board.get_cell(row + i, col - i) == board.get_current_player_id():
-                count += 1
-        
-        if row - i >= 0 and col + i < board.width:
-            if board.get_cell(row - i, col + i) == board.get_current_player_id():
-                count += 1
-                
-        if row - i >= 0 and col - i >= 0:
-            if board.get_cell(row - i, col - i) == board.get_current_player_id():
-                count += 1
-        
-    return count
-
 def better_evaluate(board):
-    score = 0
-    
-    if board.is_game_over():
-        score = -1000
-    else:
-        for row in range(6):
-            for col in range(7):
-                if board.get_cell(row, col) == board.get_current_player_id():
-                    score += get_player_chain_len(board, row, col) * 10
-                elif board.get_cell(row, col) == board.get_other_player_id():
-                    score -= get_player_chain_len(board, row, col) * 10
 
-    return score
 
 # Comment this line after you've fully implemented better_evaluate
 better_evaluate = memoize(basic_evaluate)
@@ -245,11 +195,11 @@ def run_test_tree_search(search, board, depth):
                              eval_fn=tree_searcher.tree_eval,
                              get_next_moves_fn=tree_searcher.tree_get_next_move,
                              is_terminal_fn=tree_searcher.is_leaf)
-    
+
 ## Do you want us to use your code in a tournament against other students? See
 ## the description in the problem set. The tournament is completely optional
 ## and has no effect on your grade.
-COMPETE = (None)
+COMPETE = False
 
 ## The standard survey questions.
 HOW_MANY_HOURS_THIS_PSET_TOOK = "18"
