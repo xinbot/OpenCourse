@@ -134,9 +134,53 @@ ab_iterative_player = lambda board: \
 ## By providing a different function, you should be able to beat
 ## simple-evaluate (or focused-evaluate) while searching to the
 ## same depth.
+def get_board_features(board):
+    features = [
+        [1] = {},
+        [2] = {},
+        [3] = {},
+        [4] = {}
+    ]
+    
+    return features
+
 def better_evaluate(board):
+    """
+    Here, we are looking for 4 kinds of different features and grade each of them 
+    separately. The grading rules is as following:
+    
+    Feature 1: (Four chessmen connected horizontally, vertically or diagonally)
+            grade: 1000
 
+    Feature 2: (Three chessmen connected horizontally, vertically or diagonally)
+            grade:
+                1. (200) A move can be made on either immediately adjacent columns. 
+                2. (100) A move can only be made on one of the immediately adjacent columns. 
 
+    Feature 3: (Two chessmen connected horizontally, vertically or diagonally)
+            grade:
+                1. (50) A same chessman can be found a square away from two connected men.
+                2. A move can only be made on one of the immediately adjacent columns. 
+                  (The value depends on the number of available squares along the direction till an unavailable square is met.)
+                   -- (25) 5
+                   -- (20) 4
+                   -- (15) 3
+                   -- (10) 2
+
+    Feature 4: (One chessmen connected horizontally, vertically or diagonally)
+            grade:
+                1. (20) In column d
+                2. (4)  In column a or g
+                3. (7)  In column b or f
+                4. (12) In column c or e
+    """
+    if board.is_game_over():
+        score = -1000
+    else:
+        features = get_board_features(board)
+        
+    return score
+    
 # Comment this line after you've fully implemented better_evaluate
 better_evaluate = memoize(basic_evaluate)
 
@@ -199,11 +243,11 @@ def run_test_tree_search(search, board, depth):
 ## Do you want us to use your code in a tournament against other students? See
 ## the description in the problem set. The tournament is completely optional
 ## and has no effect on your grade.
-COMPETE = False
+COMPETE = True
 
 ## The standard survey questions.
 HOW_MANY_HOURS_THIS_PSET_TOOK = "18"
-WHAT_I_FOUND_INTERESTING = "Understanding the initial minimax function is quite challenging and rewarding"
+WHAT_I_FOUND_INTERESTING = "Understanding the initial minimax function is quite challenging."
 WHAT_I_FOUND_BORING = "Nothing"
 NAME = "Xin Lin"
 EMAIL = "linxin025@gmail.com"
