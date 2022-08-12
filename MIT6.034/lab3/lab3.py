@@ -159,13 +159,13 @@ def get_chain_score(chain):
     
     # Handle Feature 4
     if count == 1:
-        if chain[0][0] == 3:
+        if chain[0][1] == 3:
             return 20
-        elif chain[0][0] == 0 or chain[0][0] == 6:
+        elif chain[0][1] == 0 or chain[0][1] == 6:
             return 4
-        elif chain[0][0] == 1 or chain[0][0] == 5:
+        elif chain[0][1] == 1 or chain[0][1] == 5:
             return 7
-        elif chain[0][0] == 2 or chain[0][0] == 4:
+        elif chain[0][1] == 2 or chain[0][1] == 4:
             return 12
         else:
             return 0
