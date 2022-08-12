@@ -134,15 +134,71 @@ ab_iterative_player = lambda board: \
 ## By providing a different function, you should be able to beat
 ## simple-evaluate (or focused-evaluate) while searching to the
 ## same depth.
-def get_board_features(board):
-    features = [
-        [1] = {},
-        [2] = {},
-        [3] = {},
-        [4] = {}
-    ]
+def is_row_chain(chain):
+    row_pos = None
+    for pos in chain:
+        if row_pos == None:
+            row_pos = pos[0]
+        else:
+            if row_pos != pos[0]:
+                return False
+    return True
+
+def is_column_chain(chain):
+    col_pos = None
+    for pos in chain:
+        if col_pos == None:
+            col_pos = pos[1]
+        else:
+            if col_pos != pos[1]:
+                return False
+    return True
+
+def get_chain_score(chain):
+    count = len(chain)
     
-    return features
+    # Handle Feature 4
+    if count == 1:
+        if chain[0][0] == 3:
+            return 20
+        elif chain[0][0] == 0 or chain[0][0] == 6:
+            return 4
+        elif chain[0][0] == 1 or chain[0][0] == 5:
+            return 7
+        elif chain[0][0] == 2 or chain[0][0] == 4:
+            return 12
+        else:
+            return 0
+    
+    # row chain
+    if is_row_chain(chain):
+        # Handle Feature 3
+        if count == 3:
+            
+        # Handle Feature 2
+        elif count == 2:
+            
+        else:
+        # Handle Exception Case
+            return 0
+    # column chain
+    elif is_column_chain(chain):
+        
+        if count == 3:
+            
+        elif count == 2:
+        
+        else:
+            return 0
+    # diagonal chain
+    else:
+        
+        if count == 3:
+            
+        elif count == 2:
+        
+        else:
+            return 0
 
 def better_evaluate(board):
     """
@@ -169,16 +225,26 @@ def better_evaluate(board):
 
     Feature 4: (One chessmen connected horizontally, vertically or diagonally)
             grade:
-                1. (20) In column d
-                2. (4)  In column a or g
-                3. (7)  In column b or f
-                4. (12) In column c or e
+                1. (20) In column 3
+                2. (4)  In column 0 or 6
+                3. (7)  In column 1 or 5
+                4. (12) In column 2 or 4
     """
     if board.is_game_over():
         score = -1000
     else:
-        features = get_board_features(board)
+        score = 0
         
+        # Handle Feature 1, which is absolute win
+        if board.longest_chain(self, get_current_player_id()) >= 4:
+            return 1000
+        
+        for chain in board.chain_cells(board.get_current_player_id()):
+            score += get_chain_score(chain)
+            
+        for chain in board.chain_cells(board.get_other_player_id()):
+            score -= get_chain_score(chain)
+
     return score
     
 # Comment this line after you've fully implemented better_evaluate
