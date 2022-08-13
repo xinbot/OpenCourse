@@ -154,19 +154,19 @@ def is_column_chain(chain):
                 return False
     return True
 
-def get_chain_score(chain):
+def get_chain_score(board, chain):
     count = len(chain)
     
     # Handle Feature 4
     if count == 1:
         if chain[0][1] == 3:
-            return 20
+            return 30
         elif chain[0][1] == 0 or chain[0][1] == 6:
-            return 4
+            return 14
         elif chain[0][1] == 1 or chain[0][1] == 5:
-            return 7
+            return 17
         elif chain[0][1] == 2 or chain[0][1] == 4:
-            return 12
+            return 22
         else:
             return 0
     
@@ -174,7 +174,24 @@ def get_chain_score(chain):
     if is_row_chain(chain):
         # Handle Feature 3
         if count == 3:
+            is_front_available = False
+            for chessmen in chain:
+                if chessmen[1] - 1 >= 0 and board.get_height_of_column(chessmen[1] - 1) == chessmen[0] - 1:
+                    is_front_available = True
+                    break
             
+            is_back_available = False
+            for chessmen in chain:
+                if chessmen[1] + 1 < board.width and board.get_height_of_column(chessmen[1] + 1) == chessmen[0] - 1:
+                    is_back_available = True
+                    break
+            
+            if is_front_available and is_back_available:
+                return 1000
+            elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+                return 600
+            else:
+                return 0
         # Handle Feature 2
         elif count == 2:
             
@@ -183,18 +200,38 @@ def get_chain_score(chain):
             return 0
     # column chain
     elif is_column_chain(chain):
-        
         if count == 3:
-            
+            for chessmen in chain:
+                if (chessman[0] + 1 < board.height and board.get_cell(chessman[0] + 1, chessman[1]) == 0)
+                    or (chessman[0] - 1 >= 0 and board.get_cell(chessman[0] - 1, chessman[1]) == 0):
+                    return 600
+            return 0
         elif count == 2:
-        
+            
         else:
             return 0
     # diagonal chain
     else:
-        
         if count == 3:
+            is_front_available = False
+            for chessmen in chain:
+                if (chessmen[0] + 1 < board.height and chessmen[1] - 1 >= 0)
+                    and board.get_height_of_column(chessmen[1] - 1) == chessmen[0] + 2:
+                    is_front_available = True
+                    break
+                
+            is_back_available = False
+            for chessmen in chain:
+                if (chessmen[0] - 1 >= 0 and chessmen[1] + 1 < board.width)
+                    and board.get_height_of_column(chessmen[1] + 1) == chessmen[0]:
+                    is_back_available = True
             
+            if is_front_available and is_back_available:
+                return 1000
+            elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+                return 600
+            else:
+                return 0
         elif count == 2:
         
         else:
@@ -210,25 +247,25 @@ def better_evaluate(board):
 
     Feature 2: (Three chessmen connected horizontally, vertically or diagonally)
             grade:
-                1. (200) A move can be made on either immediately adjacent columns. 
-                2. (100) A move can only be made on one of the immediately adjacent columns. 
+                1. (1000) A move can be made on either immediately adjacent columns. 
+                2. (600) A move can only be made on one of the immediately adjacent columns. 
 
     Feature 3: (Two chessmen connected horizontally, vertically or diagonally)
             grade:
-                1. (50) A same chessman can be found a square away from two connected men.
+                1. (250) A same chessman can be found a square away from two connected men.
                 2. A move can only be made on one of the immediately adjacent columns. 
                   (The value depends on the number of available squares along the direction till an unavailable square is met.)
-                   -- (25) 5
-                   -- (20) 4
-                   -- (15) 3
-                   -- (10) 2
+                   -- (55) 5
+                   -- (40) 4
+                   -- (25) 3
+                   -- (20) 2
 
     Feature 4: (One chessmen connected horizontally, vertically or diagonally)
             grade:
-                1. (20) In column 3
-                2. (4)  In column 0 or 6
-                3. (7)  In column 1 or 5
-                4. (12) In column 2 or 4
+                1. (30) In column 3
+                2. (14)  In column 0 or 6
+                3. (17)  In column 1 or 5
+                4. (22) In column 2 or 4
     """
     if board.is_game_over():
         score = -1000
@@ -240,10 +277,10 @@ def better_evaluate(board):
             return 1000
         
         for chain in board.chain_cells(board.get_current_player_id()):
-            score += get_chain_score(chain)
+            score += get_chain_score(board, chain)
             
         for chain in board.chain_cells(board.get_other_player_id()):
-            score -= get_chain_score(chain)
+            score -= get_chain_score(board, chain)
 
     return score
     
