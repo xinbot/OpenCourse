@@ -370,12 +370,12 @@ def better_evaluate(board):
         # Handle Feature 1, which is absolute win
         if board.longest_chain(self, get_current_player_id()) >= 4:
             return 1000
-        
-        for chain in board.chain_cells(board.get_current_player_id()):
-            score += get_chain_score(board, chain)
-            
-        for chain in board.chain_cells(board.get_other_player_id()):
-            score -= get_chain_score(board, chain)
+        else:
+            for chain in board.chain_cells(board.get_current_player_id()):
+                score += get_chain_score(board, chain)
+                
+            for chain in board.chain_cells(board.get_other_player_id()):
+                score -= get_chain_score(board, chain)
 
     return score
     
@@ -383,7 +383,7 @@ def better_evaluate(board):
 better_evaluate = memoize(basic_evaluate)
 
 # Uncomment this line to make your better_evaluate run faster.
-# better_evaluate = memoize(better_evaluate)
+better_evaluate = memoize(better_evaluate)
 
 # For debugging: Change this if-guard to True, to unit-test
 # your better_evaluate function.
