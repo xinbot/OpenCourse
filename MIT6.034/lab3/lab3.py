@@ -373,9 +373,23 @@ def better_evaluate(board):
         else:
             for chain in board.chain_cells(board.get_current_player_id()):
                 score += get_chain_score(board, chain)
-                
+
             for chain in board.chain_cells(board.get_other_player_id()):
                 score -= get_chain_score(board, chain)
+            
+            scoreBoard = [[3, 4,  5,  7,  5, 4, 3],
+                          [4, 6,  8, 10,  8, 6, 4],
+                          [5, 8, 11, 13, 11, 8, 5],
+                          [5, 8, 11, 13, 11, 8, 5],
+                          [4, 6,  8, 10,  8, 6, 4],
+                          [3, 4,  5,  7,  5, 4, 3]]
+
+            for row in range(6):
+                for col in range(7):
+                    if board.get_cell(row, col) == board.get_current_player_id():
+                        score += scoreBoard[row][col]
+                    elif board.get_cell(row, col) == board.get_other_player_id():
+                        score -= scoreBoard[row][col]
 
     return score
     
