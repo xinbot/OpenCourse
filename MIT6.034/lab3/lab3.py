@@ -251,7 +251,7 @@ def get_chain_score(board, chain):
             if is_front_available and is_back_available:
                 return 1000
             elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
-                return 600
+                return 400
             else:
                 return 0
         elif count == 2:
@@ -281,7 +281,7 @@ def get_chain_score(board, chain):
         #print "column chain: " + str(chain)[1:-1] 
         if count == 3:
             if chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0:
-                return 600
+                return 400
             else:
                 return 0
         elif count == 2:
@@ -302,7 +302,50 @@ def get_chain_score(board, chain):
     else:
         if is_diagonal_left_up(chain):
             #print "diagonal left chain UP: " + str(chain)[1:-1] 
-            return 0
+            if count == 3:
+                is_front_available = False
+                if chain[-1][0] - 1 >= 0 and chain[-1][1] + 1 < board.board_width:
+                    if board.get_height_of_column(chain[-1][1] + 1) == (5 - chain[-1][0] - 1):
+                        is_front_available = True
+                
+                is_back_available = False
+                if chain[0][0] + 1 < board.board_height and chain[0][1] - 1 >= 0:
+                    if board.get_height_of_column(chain[0][1] - 1) == (5 - chain[0][0] + 1 ):
+                        is_back_available = True
+                
+                if is_front_available and is_back_available:
+                    return 1000
+                elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+                    return 400
+                else:
+                    return 0
+            elif count == 2:
+                local_count = 0
+                row = chain[-1][0] - 1
+                col = chain[-1][1] + 1
+                while row >= 0 and col < board.board_width:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row -= 1
+                    col += 1
+                
+                row = chain[0][0] + 1
+                col = chain[0][1] - 1
+                while row < board.board_height and col >= 0:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row += 1
+                    col -= 1
+                
+                max_count = 0
+                max_count = max(max_count, local_count)
+                return feature_3_score_board[max_count]
+            else:
+                return feature_4_score_board[chain[0][1]]
         elif is_diagonal_left_down(chain):
             #print "diagonal left chain DOWN: " + str(chain)[1:-1]
             return 0
