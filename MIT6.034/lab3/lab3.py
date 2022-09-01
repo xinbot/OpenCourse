@@ -239,12 +239,14 @@ def get_chain_score(board, chain):
         #print "row chain: " + str(chain)[1:-1]
         if count == 3:
             is_front_available = False
-            if chain[-1][1] - 1 >= 0 and board.get_height_of_column(chain[-1][1] - 1) == chain[-1][0] - 1:
-                is_front_available = True
+            if chain[-1][1] - 1 >= 0:
+                if board.get_height_of_column(chain[-1][1] - 1) == (5 - chain[-1][0]):
+                    is_front_available = True
             
             is_back_available = False
-            if chain[0][1] + 1 < board.board_width and board.get_height_of_column(chain[0][1] + 1) == chain[0][0] - 1:
-                is_back_available = True
+            if chain[0][1] + 1 < board.board_width:
+                if board.get_height_of_column(chain[0][1] + 1) == (5 - chain[0][0]):
+                    is_back_available = True
             
             if is_front_available and is_back_available:
                 return 1000
@@ -278,7 +280,7 @@ def get_chain_score(board, chain):
     elif is_column_chain(chain):
         #print "column chain: " + str(chain)[1:-1] 
         if count == 3:
-            if (chain[-1][0] + 1 < board.board_height and board.get_cell(chain[-1][0] + 1, chain[-1][1]) == 0) or (chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0):
+            if chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0:
                 return 600
             else:
                 return 0
@@ -354,10 +356,10 @@ def better_evaluate(board):
             return 1000
         else:
             for chain in board.chain_cells(board.get_current_player_id()):
-                score += get_chain_score(board, chain)
+                score -= get_chain_score(board, chain)
 
             for chain in board.chain_cells(board.get_other_player_id()):
-                score -= get_chain_score(board, chain)
+                score += get_chain_score(board, chain)
             
             score_board = [[3, 4,  5,  7,  5, 4, 3],
                            [4, 6,  9, 16,  9, 6, 4],
