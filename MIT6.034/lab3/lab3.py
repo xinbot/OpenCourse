@@ -154,7 +154,8 @@ def is_column_chain(chain):
                 return False
     return True
 
-def is_diagonal_right_up(chain):
+# From Bottom Left to Upper Right
+def is_diagonal_left_up(chain):
     row_pos = None
     col_pos = None
     for pos in chain:
@@ -164,30 +165,14 @@ def is_diagonal_right_up(chain):
         else:
             row_diff = pos[0] - row_pos
             col_diff = pos[1] - col_pos
-            if row_diff == -1 or col_diff == -1:
+            if row_diff == -1 and col_diff == 1:
                 row_pos = pos[0]
                 col_pos = pos[1]
             else:
                 return False
     return True
 
-def is_diagonal_right_down(chain):
-    row_pos = None
-    col_pos = None
-    for pos in chain:
-        if row_pos == None and col_pos == None:
-            row_pos = pos[0]
-            col_pos = pos[1]
-        else:
-            row_diff = pos[0] - row_pos
-            col_diff = pos[1] - col_pos
-            if row_diff == 1 or col_diff == -1:
-                row_pos = pos[0]
-                col_pos = pos[1]
-            else:
-                return False
-    return True
-
+# From Upper Left to Bottom Right
 def is_diagonal_left_down(chain):
     row_pos = None
     col_pos = None
@@ -205,7 +190,8 @@ def is_diagonal_left_down(chain):
                 return False
     return True
 
-def is_diagonal_left_up(chain):
+# From Bottom Right to Upper Left
+def is_diagonal_right_up(chain):
     row_pos = None
     col_pos = None
     for pos in chain:
@@ -215,13 +201,31 @@ def is_diagonal_left_up(chain):
         else:
             row_diff = pos[0] - row_pos
             col_diff = pos[1] - col_pos
-            if row_diff == -1 and col_diff == 1:
+            if row_diff == -1 and col_diff == -1:
                 row_pos = pos[0]
                 col_pos = pos[1]
             else:
                 return False
     return True
-    
+
+# From Upper Right to Bottom Left
+def is_diagonal_right_down(chain):
+    row_pos = None
+    col_pos = None
+    for pos in chain:
+        if row_pos == None and col_pos == None:
+            row_pos = pos[0]
+            col_pos = pos[1]
+        else:
+            row_diff = pos[0] - row_pos
+            col_diff = pos[1] - col_pos
+            if row_diff == 1 and col_diff == -1:
+                row_pos = pos[0]
+                col_pos = pos[1]
+            else:
+                return False
+    return True
+
 def get_chain_score(board, chain):
     feature_4_score_board = [14, 17, 22, 30, 22, 17, 14]
     feature_3_score_board = [0, 10, 20, 25, 40, 55]
@@ -233,6 +237,7 @@ def get_chain_score(board, chain):
 
     if is_row_chain(chain):
     # row chain
+        print "row chain: " + str(chain)[1:-1] 
         # Handle Feature 3
         if count == 3:
             is_front_available = False
@@ -278,6 +283,7 @@ def get_chain_score(board, chain):
             return 0
     elif is_column_chain(chain):
     # column chain
+        #print "column chain: " + str(chain)[1:-1] 
         if count == 3:
             if (chain[-1][0] + 1 < board.board_height and board.get_cell(chain[-1][0] + 1, chain[-1][1]) == 0) or (chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0):
                 return 600
@@ -301,16 +307,16 @@ def get_chain_score(board, chain):
     else:
     # diagonal chain
         if is_diagonal_left_up(chain):
-            print "diagonal left chain UP" + str(chain)[1:-1] 
+            #print "diagonal left chain UP: " + str(chain)[1:-1] 
             return 0
         elif is_diagonal_left_down(chain):
-            print "diagonal left chain DOWN" + str(chain)[1:-1]
+            #print "diagonal left chain DOWN: " + str(chain)[1:-1]
             return 0
         elif is_diagonal_right_up(chain):
-            print "diagonal right chain UP" + str(chain)[1:-1]
+            #print "diagonal right chain UP: " + str(chain)[1:-1]
             return 0
         elif is_diagonal_right_down(chain):
-            print "diagonal right chain DOWN" + str(chain)[1:-1]
+            #print "diagonal right chain DOWN: " + str(chain)[1:-1]
             return 0
         else:
             return 0
