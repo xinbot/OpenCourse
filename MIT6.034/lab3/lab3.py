@@ -134,6 +134,8 @@ ab_iterative_player = lambda board: \
 ## By providing a different function, you should be able to beat
 ## simple-evaluate (or focused-evaluate) while searching to the
 ## same depth.
+
+# From Bottom to Top
 def is_column_chain(chain):
     col_pos = None
     for pos in chain:
@@ -144,37 +146,14 @@ def is_column_chain(chain):
                 return False
     return True
 
-# From Left to Right
-def is_row_left(chain):
-    row_pos = None
-    col_pos = None
-    for pos in chain:
-        if row_pos == None and col_pos == None:
-            row_pos = pos[0]
-            col_pos = pos[1]
-        else:
-            col_diff = pos[1] - col_pos
-            if row_pos == pos[0] and col_diff == 1:
-                row_pos = pos[0]
-                col_pos = pos[1]
-            else:
-                return False
-    return True
-
 # From Right to Left
-def is_row_right(chain):
+def is_row_chain(chain):
     row_pos = None
-    col_pos = None
     for pos in chain:
-        if row_pos == None and col_pos == None:
+        if row_pos == None:
             row_pos = pos[0]
-            col_pos = pos[1]
         else:
-            col_diff = pos[1] - col_pos
-            if row_pos == pos[0] and col_diff == -1:
-                row_pos = pos[0]
-                col_pos = pos[1]
-            else:
+            if row_pos != pos[0]:
                 return False
     return True
 
@@ -255,59 +234,9 @@ def get_chain_score(board, chain):
     feature_3_score_board = [0, 10, 20, 25, 40, 55]
     
     count = len(chain)
-    # Handle Feature 4
-    if count == 1:
-        return feature_4_score_board[chain[0][1]]
 
-    if is_row_left(chain):
-    # row left chain
-        #print "row left chain: " + str(chain)[1:-1] 
-        # Handle Feature 3
-        if count == 3:
-            is_front_available = False
-            if chain[0][1] - 1 >= 0 and board.get_height_of_column(chain[0][1] - 1) == chain[0][0] - 1:
-                is_front_available = True
-            
-            is_back_available = False
-            if chain[-1][1] + 1 < board.board_width and board.get_height_of_column(chain[-1][1] + 1) == chain[-1][0] - 1:
-                is_back_available = True
-            
-            if is_front_available and is_back_available:
-                return 1000
-            elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
-                return 600
-            else:
-                return 0
-        # Handle Feature 2
-        elif count == 2:
-            local_count = 0
-            col = chain[-1][1] + 1
-            while col < board.board_width:
-                if board.get_cell(chain[-1][0], col) == 0:
-                    if chain[-1][0] == 5 or board.get_height_of_column(col) == chain[-1][0] - 1:
-                        local_count += 1
-                else:
-                    break
-                col += 1
-
-            col = chain[0][1] - 1
-            while col >= 0:
-                if board.get_cell(chain[0][0], col) == 0:
-                    if chain[0][0] == 5 or board.get_height_of_column(col) == chain[0][0] - 1:
-                        local_count += 1
-                else:
-                    break
-                col -= 1
-            
-            max_count = 0
-            max_count = max(max_count, local_count)
-            return feature_3_score_board[max_count]
-        else:
-        # Handle Exception Case
-            return 0
-    elif is_row_right(chain):
-    # row right chain
-        #print "row right chain: " + str(chain)[1:-1]
+    if is_row_chain(chain):
+        #print "row chain: " + str(chain)[1:-1]
         if count == 3:
             is_front_available = False
             if chain[-1][1] - 1 >= 0 and board.get_height_of_column(chain[-1][1] - 1) == chain[-1][0] - 1:
@@ -328,8 +257,7 @@ def get_chain_score(board, chain):
             col = chain[0][1] + 1
             while col < board.board_width:
                 if board.get_cell(chain[0][0], col) == 0:
-                    if chain[0][0] == 5 or board.get_height_of_column(col) == chain[0][0] - 1:
-                        local_count += 1
+                    local_count += 1
                 else:
                     break
                 col += 1
@@ -337,8 +265,7 @@ def get_chain_score(board, chain):
             col = chain[-1][1] - 1
             while col >= 0:
                 if board.get_cell(chain[-1][0], col) == 0:
-                    if chain[-1][0] == 5 or board.get_height_of_column(col) == chain[-1][0] - 1:
-                        local_count += 1
+                    local_count += 1
                 else:
                     break
                 col -= 1
@@ -347,9 +274,8 @@ def get_chain_score(board, chain):
             max_count = max(max_count, local_count)
             return feature_3_score_board[max_count]
         else:
-            return 0
+            return feature_4_score_board[chain[0][1]]
     elif is_column_chain(chain):
-    # column chain
         #print "column chain: " + str(chain)[1:-1] 
         if count == 3:
             if (chain[-1][0] + 1 < board.board_height and board.get_cell(chain[-1][0] + 1, chain[-1][1]) == 0) or (chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0):
@@ -357,8 +283,8 @@ def get_chain_score(board, chain):
             else:
                 return 0
         elif count == 2:
-            row = chain[-1][0] - 1
             local_count = 0
+            row = chain[-1][0] - 1
             while row >= 0:
                 if board.get_cell(row, chain[-1][1]) == 0:
                     local_count += 1
@@ -370,9 +296,8 @@ def get_chain_score(board, chain):
             max_count = max(max_count, local_count)
             return feature_3_score_board[max_count]
         else:
-            return 0
+            return feature_4_score_board[chain[0][1]]
     else:
-    # diagonal chain
         if is_diagonal_left_up(chain):
             #print "diagonal left chain UP: " + str(chain)[1:-1] 
             return 0
@@ -415,8 +340,8 @@ def better_evaluate(board):
     Feature 4: (One chessmen connected horizontally, vertically or diagonally)
             grade:
                 1. (30) In column 3
-                2. (14)  In column 0 or 6
-                3. (17)  In column 1 or 5
+                2. (14) In column 0 or 6
+                3. (17) In column 1 or 5
                 4. (22) In column 2 or 4
     """
     if board.is_game_over():
@@ -444,9 +369,9 @@ def better_evaluate(board):
             for row in range(6):
                 for col in range(7):
                     if board.get_cell(row, col) == board.get_current_player_id():
-                        score += score_board[row][col]
-                    elif board.get_cell(row, col) == board.get_other_player_id():
                         score -= score_board[row][col]
+                    elif board.get_cell(row, col) == board.get_other_player_id():
+                        score += score_board[row][col]
 
     return score
     
