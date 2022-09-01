@@ -154,37 +154,94 @@ def is_column_chain(chain):
                 return False
     return True
 
-def get_chain_score(board, chain):
-    count = len(chain)
+def is_diagonal_right_up(chain):
+    row_pos = None
+    col_pos = None
+    for pos in chain:
+        if row_pos == None and col_pos == None:
+            row_pos = pos[0]
+            col_pos = pos[1]
+        else:
+            row_diff = pos[0] - row_pos
+            col_diff = pos[1] - col_pos
+            if row_diff == -1 or col_diff == -1:
+                row_pos = pos[0]
+                col_pos = pos[1]
+            else:
+                return False
+    return True
+
+def is_diagonal_right_down(chain):
+    row_pos = None
+    col_pos = None
+    for pos in chain:
+        if row_pos == None and col_pos == None:
+            row_pos = pos[0]
+            col_pos = pos[1]
+        else:
+            row_diff = pos[0] - row_pos
+            col_diff = pos[1] - col_pos
+            if row_diff == 1 or col_diff == -1:
+                row_pos = pos[0]
+                col_pos = pos[1]
+            else:
+                return False
+    return True
+
+def is_diagonal_left_down(chain):
+    row_pos = None
+    col_pos = None
+    for pos in chain:
+        if row_pos == None and col_pos == None:
+            row_pos = pos[0]
+            col_pos = pos[1]
+        else:
+            row_diff = pos[0] - row_pos
+            col_diff = pos[1] - col_pos
+            if row_diff == 1 and col_diff == 1:
+                row_pos = pos[0]
+                col_pos = pos[1]
+            else:
+                return False
+    return True
+
+def is_diagonal_left_up(chain):
+    row_pos = None
+    col_pos = None
+    for pos in chain:
+        if row_pos == None and col_pos == None:
+            row_pos = pos[0]
+            col_pos = pos[1]
+        else:
+            row_diff = pos[0] - row_pos
+            col_diff = pos[1] - col_pos
+            if row_diff == -1 and col_diff == 1:
+                row_pos = pos[0]
+                col_pos = pos[1]
+            else:
+                return False
+    return True
     
+def get_chain_score(board, chain):
+    feature_4_score_board = [14, 17, 22, 30, 22, 17, 14]
+    feature_3_score_board = [0, 10, 20, 25, 40, 55]
+    count = len(chain)
+
     # Handle Feature 4
     if count == 1:
-        if chain[0][1] == 3:
-            return 30
-        elif chain[0][1] == 0 or chain[0][1] == 6:
-            return 14
-        elif chain[0][1] == 1 or chain[0][1] == 5:
-            return 17
-        elif chain[0][1] == 2 or chain[0][1] == 4:
-            return 22
-        else:
-            return 0
-    
-    # row chain
+        return feature_4_score_board[chain[0][1]]
+
     if is_row_chain(chain):
+    # row chain
         # Handle Feature 3
         if count == 3:
             is_front_available = False
-            for chessmen in chain:
-                if chessmen[1] - 1 >= 0 and board.get_height_of_column(chessmen[1] - 1) == chessmen[0] - 1:
-                    is_front_available = True
-                    break
+            if chain[0][1] - 1 >= 0 and board.get_height_of_column(chain[0][1] - 1) == chain[0][0] - 1:
+                is_front_available = True
             
             is_back_available = False
-            for chessmen in chain:
-                if chessmen[1] + 1 < board.width and board.get_height_of_column(chessmen[1] + 1) == chessmen[0] - 1:
-                    is_back_available = True
-                    break
+            if chain[-1][1] + 1 < board.board_width and board.get_height_of_column(chain[-1][1] + 1) == chain[-1][0] - 1:
+                is_back_available = True
             
             if is_front_available and is_back_available:
                 return 1000
@@ -195,139 +252,66 @@ def get_chain_score(board, chain):
         # Handle Feature 2
         elif count == 2:
             max_count = 0
-            for chessmen in chain:
-                local_count = 0
-                col = chessman[1] + 1
-                while col < board.width:
-                    if board.get_cell(chessman[0], col) == 0:
-                        if chessmen[0] == 5 or board.get_height_of_column(col) == chessmen[0] - 1:
-                            local_count += 1
-                    else:
-                        break
-                    col += 1
+            local_count = 0
+            col = chain[-1][1] + 1
+            while col < board.board_width:
+                if board.get_cell(chain[-1][0], col) == 0:
+                    if chain[-1][0] == 5 or board.get_height_of_column(col) == chain[-1][0] - 1:
+                        local_count += 1
+                else:
+                    break
+                col += 1
 
-                col = chessman[1] - 1
-                while col >= 0:
-                    if board.get_cell(chessman[0], col) == 0:
-                        if chessmen[0] == 5 or board.get_height_of_column(col) == chessmen[0] - 1:
-                            local_count += 1
-                    else:
-                        break
-                    col -= 1
-                
-                max_count = max(max_count, local_count)
+            col = chain[0][1] - 1
+            while col >= 0:
+                if board.get_cell(chain[0][0], col) == 0:
+                    if chain[0][0] == 5 or board.get_height_of_column(col) == chain[0][0] - 1:
+                        local_count += 1
+                else:
+                    break
+                col -= 1
 
-            if max_count == 5:
-                return 55
-            elif max_count == 4:
-                return 40
-            elif max_count == 3:
-                return 25
-            elif max_count == 2:
-                return 20
-            elif max_count == 1:
-                return 10
-            else:
-                return 0
+            max_count = max(max_count, local_count)
+            return feature_3_score_board[max_count]
         else:
         # Handle Exception Case
             return 0
-    # column chain
     elif is_column_chain(chain):
+    # column chain
         if count == 3:
-            for chessmen in chain:
-                if (chessman[0] + 1 < board.height and board.get_cell(chessman[0] + 1, chessman[1]) == 0) or (chessman[0] - 1 >= 0 and board.get_cell(chessman[0] - 1, chessman[1]) == 0):
-                    return 600
-            return 0
-        elif count == 2:
-            max_count = 0
-            for chessmen in chain:
-                row = chessman[0] - 1
-                local_count = 0
-                while row >= 0:
-                    if board.get_cell(row, chessman[1]) == 0:
-                        local_count += 1
-                    else:
-                        break
-                    row -= 1
-                max_count = max(max_count, local_count)
-                
-            if max_count == 5:
-                return 55
-            elif max_count == 4:
-                return 40
-            elif max_count == 3:
-                return 25
-            elif max_count == 2:
-                return 20
-            elif max_count == 1:
-                return 10
-            else:
-                return 0
-        else:
-            return 0
-    # diagonal chain
-    else:
-        if count == 3:
-            is_front_available = False
-            for chessmen in chain:
-                if chessmen[0] + 1 < board.height and chessmen[1] - 1 >= 0:
-                    if board.get_height_of_column(chessmen[1] - 1) == chessmen[0] + 2:
-                        is_front_available = True
-                        break
-                
-            is_back_available = False
-            for chessmen in chain:
-                if chessmen[0] - 1 >= 0 and chessmen[1] + 1 < board.width:
-                    if board.get_height_of_column(chessmen[1] + 1) == chessmen[0]:
-                        is_back_available = True
-            
-            if is_front_available and is_back_available:
-                return 1000
-            elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+            if (chain[-1][0] + 1 < board.board_height and board.get_cell(chain[-1][0] + 1, chain[-1][1]) == 0) or (chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0):
                 return 600
             else:
                 return 0
         elif count == 2:
             max_count = 0
-            for chessmen in chain:
-                local_count = 0
-                row = chessman[0] + 1
-                col = chessman[1] - 1
-                while row < board.height and col >= 0:
-                    if board.get_cell(row, col) == 0:
-                        if board.get_height_of_column(col) == chessman[0] + 1:
-                            local_count += 1
-                    else:
-                        break
-                    row += 1
-                    col -= 1
-                    
-                row = chessman[0] - 1
-                col = chessman[1] + 1
-                while row < board.height and col >= 0:
-                    if board.get_cell(row, col) == 0:
-                        if board.get_height_of_column(col) == chessman[0] - 1:
-                            local_count += 1
-                    else:
-                        break
-                    row -= 1
-                    col += 1
+            row = chain[-1][0] - 1
+            local_count = 0
+            while row >= 0:
+                if board.get_cell(row, chain[-1][1]) == 0:
+                    local_count += 1
+                else:
+                    break
+                row -= 1
 
             max_count = max(max_count, local_count)
-            
-            if max_count == 5:
-                return 55
-            elif max_count == 4:
-                return 40
-            elif max_count == 3:
-                return 25
-            elif max_count == 2:
-                return 20
-            elif max_count == 1:
-                return 10
-            else:
-                return 0
+            return feature_3_score_board[max_count]
+        else:
+            return 0
+    else:
+    # diagonal chain
+        if is_diagonal_left_up(chain):
+            print "diagonal left chain UP" + str(chain)[1:-1] 
+            return 0
+        elif is_diagonal_left_down(chain):
+            print "diagonal left chain DOWN" + str(chain)[1:-1]
+            return 0
+        elif is_diagonal_right_up(chain):
+            print "diagonal right chain UP" + str(chain)[1:-1]
+            return 0
+        elif is_diagonal_right_down(chain):
+            print "diagonal right chain DOWN" + str(chain)[1:-1]
+            return 0
         else:
             return 0
 
@@ -368,7 +352,7 @@ def better_evaluate(board):
         score = 0
         
         # Handle Feature 1, which is absolute win
-        if board.longest_chain(self, get_current_player_id()) >= 4:
+        if board.longest_chain(board.get_current_player_id()) >= 4:
             return 1000
         else:
             for chain in board.chain_cells(board.get_current_player_id()):
@@ -377,27 +361,27 @@ def better_evaluate(board):
             for chain in board.chain_cells(board.get_other_player_id()):
                 score -= get_chain_score(board, chain)
             
-            scoreBoard = [[3, 4,  5,  7,  5, 4, 3],
-                          [4, 6,  8, 10,  8, 6, 4],
-                          [5, 8, 11, 13, 11, 8, 5],
-                          [5, 8, 11, 13, 11, 8, 5],
-                          [4, 6,  8, 10,  8, 6, 4],
-                          [3, 4,  5,  7,  5, 4, 3]]
+            score_board = [[3, 4,  5,  7,  5, 4, 3],
+                           [4, 6,  9, 16,  9, 6, 4],
+                           [5, 9, 21, 23, 21, 9, 5],
+                           [5, 9, 21, 23, 21, 9, 5],
+                           [4, 6,  9, 16,  9, 6, 4],
+                           [3, 4,  5,  7,  5, 4, 3]]
 
             for row in range(6):
                 for col in range(7):
                     if board.get_cell(row, col) == board.get_current_player_id():
-                        score += scoreBoard[row][col]
+                        score += score_board[row][col]
                     elif board.get_cell(row, col) == board.get_other_player_id():
-                        score -= scoreBoard[row][col]
+                        score -= score_board[row][col]
 
     return score
     
 # Comment this line after you've fully implemented better_evaluate
-better_evaluate = memoize(basic_evaluate)
+#better_evaluate = memoize(basic_evaluate)
 
 # Uncomment this line to make your better_evaluate run faster.
-better_evaluate = memoize(better_evaluate)
+#better_evaluate = memoize(better_evaluate)
 
 # For debugging: Change this if-guard to True, to unit-test
 # your better_evaluate function.
