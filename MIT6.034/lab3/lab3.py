@@ -230,7 +230,7 @@ def is_diagonal_right_down(chain):
     return True
 
 def get_chain_score(board, chain):
-    feature_4_score_board = [14, 17, 22, 30, 22, 17, 14]
+    feature_4_score_board = [9, 16, 21, 23, 21, 16, 9]
     feature_3_score_board = [0, 10, 20, 25, 40, 55]
     
     count = len(chain)
