@@ -281,7 +281,7 @@ def get_chain_score(board, chain):
         #print "column chain: " + str(chain)[1:-1] 
         if count == 3:
             if chain[-1][0] - 1 >= 0 and board.get_cell(chain[-1][0] - 1, chain[-1][1]) == 0:
-                return 400
+                return 1000
             else:
                 return 0
         elif count == 2:
@@ -394,7 +394,50 @@ def get_chain_score(board, chain):
                 return feature_4_score_board[chain[0][1]]
         elif is_diagonal_right_up(chain):
             #print "diagonal right chain UP: " + str(chain)[1:-1]
-            return 0
+            if count == 3:
+                is_front_available = False
+                if chain[-1][0] - 1 >= 0 and chain[-1][1] - 1 >= 0:
+                    if board.get_height_of_column(chain[-1][1] - 1) == (5 - chain[-1][0] - 1):
+                        is_front_available = True
+
+                is_back_available = False
+                if chain[0][0] + 1 < board.board_height and chain[0][1] + 1 < board.board_width:
+                    if board.get_height_of_column(chain[0][0] + 1) == (5 - chain[0][0]):
+                        is_back_available = True
+                
+                if is_front_available and is_back_available:
+                    return 1000
+                elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+                    return 400
+                else:
+                    return 0
+            elif count == 2:
+                local_count = 0
+                row = chain[-1][0] - 1
+                col = chain[-1][1] - 1
+                while row >= 0 and col >= 0:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row -= 1
+                    col -= 1
+
+                row = chain[0][0] + 1
+                col = chain[0][1] + 1
+                while row < board.board_height and col < board.board_width:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row += 1
+                    col += 1
+                
+                max_count = 0
+                max_count = max(max_count, local_count)
+                return feature_3_score_board[max_count]
+            else:
+                return feature_4_score_board[chain[0][1]]
         elif is_diagonal_right_down(chain):
             #print "diagonal right chain DOWN: " + str(chain)[1:-1]
             return 0
@@ -442,24 +485,24 @@ def better_evaluate(board):
             return 1000
         else:
             for chain in board.chain_cells(board.get_current_player_id()):
-                score -= get_chain_score(board, chain)
+                score += get_chain_score(board, chain)
 
             for chain in board.chain_cells(board.get_other_player_id()):
-                score += get_chain_score(board, chain)
+                score -= get_chain_score(board, chain)
             
-            score_board = [[1,  4,  4,  4,  4,  4, 1],
-                           [4,  9,  9,  9,  9,  9, 4],
-                           [9,  9, 16, 16, 16,  9, 9],
+            score_board = [[1,  1,  4,  9,  4,  1, 1],
+                           [4,  4,  9,  9,  9,  4, 4],
+                           [9,  9,  9, 16,  9,  9, 9],
                            [9, 16, 16, 21, 16, 16, 9],
-                           [9, 16, 21, 23, 21, 16, 9],
-                           [9, 16, 21, 23, 21, 16, 9]]
+                           [9, 16, 21, 35, 21, 16, 9],
+                           [9, 16, 21, 55, 21, 16, 9]]
 
             for row in range(6):
                 for col in range(7):
                     if board.get_cell(row, col) == board.get_current_player_id():
-                        score -= score_board[row][col]
-                    elif board.get_cell(row, col) == board.get_other_player_id():
                         score += score_board[row][col]
+                    elif board.get_cell(row, col) == board.get_other_player_id():
+                        score -= score_board[row][col]
 
     return score
     
@@ -528,7 +571,7 @@ def run_test_tree_search(search, board, depth):
 COMPETE = True
 
 ## The standard survey questions.
-HOW_MANY_HOURS_THIS_PSET_TOOK = "18"
+HOW_MANY_HOURS_THIS_PSET_TOOK = "118"
 WHAT_I_FOUND_INTERESTING = "Understanding the initial minimax function is quite challenging."
 WHAT_I_FOUND_BORING = "Nothing"
 NAME = "Xin Lin"
