@@ -348,7 +348,50 @@ def get_chain_score(board, chain):
                 return feature_4_score_board[chain[0][1]]
         elif is_diagonal_left_down(chain):
             #print "diagonal left chain DOWN: " + str(chain)[1:-1]
-            return 0
+            if count == 3:
+                s_front_available = False
+                if chain[-1][0] + 1 < board.board_height and chain[-1][1] + 1 < board.board_width:
+                    if board.get_height_of_column(chain[-1][1] + 1) == (5 - chain[-1][0]):
+                        is_front_available = True
+
+                is_back_available = False
+                if chain[0][0] - 1 >= 0 and chain[0][1] - 1 >= 0:
+                    if board.get_height_of_column(chain[0][1] - 1) == chain[0][0]:
+                        is_back_available = True
+                
+                if is_front_available and is_back_available:
+                    return 1000
+                elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+                    return 400
+                else:
+                    return 0
+            elif count == 2:
+                local_count = 0
+                row = chain[-1][0] + 1
+                col = chain[-1][1] + 1
+                while row < board.board_height and col < board.board_width:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row += 1
+                    col += 1
+
+                row = chain[0][0] - 1
+                col = chain[0][1] - 1
+                while row >= 0 and col >= 0:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row -= 1
+                    col -= 1
+                
+                max_count = 0
+                max_count = max(max_count, local_count)
+                return feature_3_score_board[max_count]
+            else:
+                return feature_4_score_board[chain[0][1]]
         elif is_diagonal_right_up(chain):
             #print "diagonal right chain UP: " + str(chain)[1:-1]
             return 0
@@ -404,12 +447,12 @@ def better_evaluate(board):
             for chain in board.chain_cells(board.get_other_player_id()):
                 score += get_chain_score(board, chain)
             
-            score_board = [[3, 4,  5,  7,  5, 4, 3],
-                           [4, 6,  9, 16,  9, 6, 4],
-                           [5, 9, 21, 23, 21, 9, 5],
-                           [5, 9, 21, 23, 21, 9, 5],
-                           [4, 6,  9, 16,  9, 6, 4],
-                           [3, 4,  5,  7,  5, 4, 3]]
+            score_board = [[1,  4,  4,  4,  4,  4, 1],
+                           [4,  9,  9,  9,  9,  9, 4],
+                           [9,  9, 16, 16, 16,  9, 9],
+                           [9, 16, 16, 21, 16, 16, 9],
+                           [9, 16, 21, 23, 21, 16, 9],
+                           [9, 16, 21, 23, 21, 16, 9]]
 
             for row in range(6):
                 for col in range(7):
