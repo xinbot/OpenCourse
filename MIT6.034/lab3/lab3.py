@@ -251,7 +251,7 @@ def get_chain_score(board, chain):
             if is_front_available and is_back_available:
                 return 1000
             elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
-                return 400
+                return 600
             else:
                 return 0
         elif count == 2:
@@ -316,7 +316,7 @@ def get_chain_score(board, chain):
                 if is_front_available and is_back_available:
                     return 1000
                 elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
-                    return 400
+                    return 600
                 else:
                     return 0
             elif count == 2:
@@ -362,7 +362,7 @@ def get_chain_score(board, chain):
                 if is_front_available and is_back_available:
                     return 1000
                 elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
-                    return 400
+                    return 600
                 else:
                     return 0
             elif count == 2:
@@ -408,7 +408,7 @@ def get_chain_score(board, chain):
                 if is_front_available and is_back_available:
                     return 1000
                 elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
-                    return 400
+                    return 600
                 else:
                     return 0
             elif count == 2:
@@ -440,7 +440,50 @@ def get_chain_score(board, chain):
                 return feature_4_score_board[chain[0][1]]
         elif is_diagonal_right_down(chain):
             #print "diagonal right chain DOWN: " + str(chain)[1:-1]
-            return 0
+            if count == 3:
+                is_front_available = False
+                if chain[-1][0] + 1 < board.board_height and chain[-1][1] - 1 >= 0:
+                    if board.get_height_of_column(chain[-1][1] - 1) == (5 - chain[-1][0] + 1):
+                        is_front_available = True
+                        
+                is_back_available = False
+                if chain[0][0] - 1 >= 0 and chain[0][1] + 1 < board.board_width:
+                    if board.get_height_of_column(chain[0][1] + 1) == (5 - chain[0][0]):
+                        is_back_available = True
+                
+                if is_front_available and is_back_available:
+                    return 1000
+                elif (not is_front_available and is_back_available) or (is_front_available and not is_back_available):
+                    return 600
+                else:
+                    return 0
+            elif count == 2:
+                local_count = 0
+                row = chain[-1][0] + 1
+                col = chain[-1][1] - 1
+                while row < board.board_height and col >= 0:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row += 1
+                    col -= 1
+
+                row = chain[0][0] - 1
+                col = chain[0][1] + 1
+                while row >= 0 and col < board.board_width:
+                    if board.get_cell(row, col) == 0:
+                        local_count += 1
+                    else:
+                        break
+                    row -= 1
+                    col += 1
+                
+                max_count = 0
+                max_count = max(max_count, local_count)
+                return feature_3_score_board[max_count]
+            else:
+                return feature_4_score_board[chain[0][1]]
         else:
             return 0
 
@@ -490,6 +533,9 @@ def better_evaluate(board):
             for chain in board.chain_cells(board.get_other_player_id()):
                 score -= get_chain_score(board, chain)
             
+            # 1. Take the center square over edges and corners
+            # 2. Take corner squares over edges
+            # 3. Take edges if they are the only thing available
             score_board = [[1,  1,  4,  9,  4,  1, 1],
                            [4,  4,  9,  9,  9,  4, 4],
                            [9,  9,  9, 16,  9,  9, 9],
