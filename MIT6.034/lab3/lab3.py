@@ -137,7 +137,7 @@ ab_iterative_player = lambda board: \
 def get_chain_len(chain_type, board, row, col, player):
     count = 0
     for i in xrange(3):
-        if chain_type == 0 and board.get_cell(row, col+i) == player:
+        if chain_type == 0 and board.get_cell(row, col + i) == player:
             count += 1
         elif chain_type == 1 and board.get_cell(row + i, col) == player:
             count += 1
@@ -148,16 +148,14 @@ def get_chain_len(chain_type, board, row, col, player):
 def better_evaluate(board):
     score = 0
     if board.longest_chain(board.get_current_player_id()) == 4:
-        score = 2000 - board.num_tokens_on_board()
+        score = 2000  - board.num_tokens_on_board()
     elif board.longest_chain(board.get_other_player_id()) == 4:
         score = -2000 + board.num_tokens_on_board()
     else:
-        current_player = board.get_current_player_id()
-        other_player = board.get_other_player_id()
         for row in xrange(3):
             for col in xrange(4):
-                score += max([get_chain_len(i, board, row, col, current_player) for i in xrange(3)])**2
-                score -= max([get_chain_len(i, board, row, col, other_player) for i in xrange(3)])**2
+                score += max([get_chain_len(i, board, row, col, board.get_current_player_id()) for i in xrange(3)])**2
+                score -= max([get_chain_len(i, board, row, col, board.get_other_player_id())   for i in xrange(3)])**2
     return score
     
 # Comment this line after you've fully implemented better_evaluate
